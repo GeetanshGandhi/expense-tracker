@@ -27,7 +27,6 @@ export async function GET(req) {
         orderBy: { date: "desc" },
         take: 10,
       });
-
       return NextResponse.json(expenses);
     }
 
@@ -48,7 +47,6 @@ export async function GET(req) {
           },
         },
       });
-
       return NextResponse.json({
         total: result._sum.amount || 0,
       });
@@ -115,13 +113,12 @@ export async function GET(req) {
           },
         },
       });
-      console.log("Grouped by category:");
-      console.log(grouped);
+
     const result = grouped.reduce((acc, item) => {
-        acc[item.category] = item._sum.amount || 0;
-        return acc;
+      acc[item.category] = item._sum.amount || 0;
+      return acc;
     }, {});
-      return NextResponse.json(grouped);
+      return NextResponse.json(result);
     }
 
     return NextResponse.json(

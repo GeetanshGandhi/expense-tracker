@@ -1,9 +1,16 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import styles from './page.module.css'
 
 export default function Home() {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const toggleConfirmDelete = () => {
+    setConfirmDelete(!confirmDelete);
+  }
+  const [todaysExpense, setTodaysExpense] = useState(0);
+  const [monthsExpense, setMonthsExpense] = useState(0);
   const [categoryWiseMonthExpense, setCategoryWiseMonthExpense] = useState({
     "Food": 0,
     "Transport": 0,
@@ -28,11 +35,14 @@ export default function Home() {
   ]);
 
   const formatDate = (dateString) => {
-    const [year, month, day] = dateString.split('-');
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   };
 
-  const addExpense = () => {
+  const addExpense = async () => {
     const date = document.getElementById('date').value;
     const description = document.getElementById('description').value;
     const category = document.getElementById('category').value;
@@ -47,7 +57,16 @@ export default function Home() {
         amount: parseFloat(amount)
       };
       //LOGIC TO ADD TO DB : TO DO
-      setExpenses([newExpense, ...expenses]);
+      const res = await fetch('http://localhost:3000/api/expenses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newExpense)
+      })
+      if(res.ok){
+      const data = await res.json();
+      setExpenses([data, ...expenses]);
       // Clear input fields after adding expense
       document.getElementById('date').value = new Date().toISOString().split('T')[0];
       document.getElementById('description').value = '';
@@ -55,13 +74,36 @@ export default function Home() {
       document.getElementById('amount').value = '';
       setAddVisible(false);
       document.getElementById('warning').style.display = 'none';
+      }
+
     } else {
       document.getElementById('warning').style.display = 'block';
     }
   }
 
-  useEffect(() => {
-    // populate expense category in dropdown instead of hardcoding
+  const prelimDeleteExpense = (expenseId) => {
+      document.getElementById(`confirmdeletewrapper-${expenseId}`).style.display = 'flex';
+      document.getElementById(`deleteiconbtn-${expenseId}`).style.display = 'none';
+      document.getElementById(`canceldeletion-${expenseId}`).style.display = 'block';}
+
+  const cancelDeleteExpense = (expenseId) => {
+    document.getElementById(`confirmdeletewrapper-${expenseId}`).style.display = 'none';
+    document.getElementById(`deleteiconbtn-${expenseId}`).style.display = 'block';
+    document.getElementById(`canceldeletion-${expenseId}`).style.display = 'none';
+  }
+
+  const deleteExpense = async (id) => {
+    //LOGIC TO DELETE FROM DB : TO DO
+    const res = await fetch(`http://localhost:3000/api/expenses?id=${id}`, {
+      method: 'DELETE'
+    });
+    if(res.ok){
+      setExpenses(expenses.filter(exp => exp.id !== id));
+    }
+  }
+
+  useEffect(async () => {
+          // populate expense category in dropdown instead of hardcoding
     const categorySelect = document.getElementById('category');
     categorySelect.innerHTML = '<option value="" disabled>Category</option>';
     expenseCategory.forEach(cat => {
@@ -70,12 +112,37 @@ export default function Home() {
       option.textContent = cat;
       categorySelect.appendChild(option);
     });
-    fetch('http://localhost:3000/api/expenses?type=monthByCategory', {
+    await fetch('http://localhost:3000/api/expenses?type=monthByCategory', {
       method: 'GET'
     })
       .then(response => response.json())
-      .then(data => console.log(data))
+      .then(data => setCategoryWiseMonthExpense(data))
       .catch(error => console.error('Error fetching category-wise month expense:', error));
+    
+      // last 10 expenses
+      await fetch('http://localhost:3000/api/expenses?type=last10', {
+      method: 'GET'
+    })
+      .then(response => response.json())
+      .then(data => setExpenses(data))
+      .catch(error => console.error('Error fetching last 10 expenses:', error));
+
+    //fetch todays total expense
+    await fetch('http://localhost:3000/api/expenses?type=todayTotal', {
+      method: 'GET'
+    })
+      .then(response => response.json())
+      .then(data => setTodaysExpense(data.total))
+      .catch(error => console.error('Error fetching today total expense:', error));
+
+    //fetch month total expense
+    await fetch('http://localhost:3000/api/expenses?type=monthTotal', {
+      method: 'GET'
+    })
+      .then(response => response.json())
+      .then(data => setMonthsExpense(data.total))
+      .catch(error => console.error('Error fetching month total expense:', error));
+
   }, [])
 
   return (
@@ -83,11 +150,11 @@ export default function Home() {
       <p className={`${styles.title} ${styles.whiteheaders} ${styles.maintitle}`}>Expense Tracker</p>
       <div className={styles.expshowwrapper}>
         <p className={styles.expshowhead}>Today's spend: </p>
-        <p className={styles.expshowval}>Rs {120000}/-</p>
+        <p className={styles.expshowval}>Rs {todaysExpense}/-</p>
       </div>
       <div className={styles.expshowwrapper}>
         <p className={styles.expshowhead}>This month: </p>
-        <p className={styles.expshowval}>Rs {120000}/-</p>
+        <p className={styles.expshowval}>Rs {monthsExpense}/-</p>
       </div>
       <p className={styles.monthlyinsighthead}>This Month's Insight:</p>
     
@@ -149,7 +216,6 @@ export default function Home() {
                 <p className={styles.expdetailsdesc}>Rs {expense.amount}/-</p>
               </div>
               <div className={styles.wrapperspacebtw}>
-                <p className={styles.expdetailsdesc}>{formatDate(expense.date)}</p>
                 <p className={styles.expdetailscategory}
                    style={{backgroundColor: expense.category==="Food"?"rgb(107, 255, 102)"
                     :expense.category==="Transport"?"rgb(255, 255, 102)"
@@ -158,7 +224,15 @@ export default function Home() {
                    :"rgb(183, 183, 183)"}}>
                   {expense.category}
                 </p>
-                
+                <p className={styles.expdetailsdesc}>{formatDate(expense.date)}</p>
+                <button id={"deleteiconbtn-"+expense.id} className={styles.deletebtn} onClick={()=>prelimDeleteExpense(expense.id)}>
+                    <Image className={styles.deleteimg} src={require("../images/deleteIcon.png")} alt="Delete expense" />
+                </button>
+                <button id={"canceldeletion-"+expense.id} className={styles.canceldeletion} onClick={()=>cancelDeleteExpense(expense.id)}>Cancel</button>
+              </div>
+              <div id={"confirmdeletewrapper-"+expense.id} className={styles.confirmdeletewrapper}>
+                <p className={styles.confirmdeletetext}>Confirm Delete?</p>
+                <button className={styles.confirmdeleteyes} onClick={()=>deleteExpense(expense.id)}>Yes</button>
               </div>
           </div>
           </div>

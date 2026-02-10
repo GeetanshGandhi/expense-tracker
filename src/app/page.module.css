@@ -187,3 +187,48 @@
     border-radius: 6px;
     background-color: rgb(87, 0, 0);
 }
+
+.deletebtn {
+    position: relative;
+    top: 5px;
+    background-color: rgb(0,0,0,0);
+    border: none;
+}
+.deleteimg {
+    background-color: rgb(0, 0, 0, 0);
+    width: 20px;
+    height: 20px;
+}
+
+.confirmdeletewrapper {
+    display: none;
+    justify-content: center;
+    border-radius: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+.canceldeletion {
+    display: none;
+    font: 17px "TASA Explorer", sans-serif;
+    padding: 1px 3px;
+    background-color: rgb(13, 123, 59);
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.confirmdeletetext {
+    color: white;
+    font: 17px "TASA Explorer", sans-serif;
+    margin-right: 10px;
+}
+
+.confirmdeleteyes {
+    font: 17px "TASA Explorer", sans-serif;
+    padding: 1px 3px;
+    background-color: rgb(182, 7, 7);
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
