@@ -5,10 +5,6 @@ import Image from 'next/image';
 import styles from './page.module.css'
 
 export default function Home() {
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const toggleConfirmDelete = () => {
-    setConfirmDelete(!confirmDelete);
-  }
   const [todaysExpense, setTodaysExpense] = useState(0);
   const [monthsExpense, setMonthsExpense] = useState(0);
   const [categoryWiseMonthExpense, setCategoryWiseMonthExpense] = useState({
@@ -49,8 +45,7 @@ export default function Home() {
         category,
         amount: parseFloat(amount)
       };
-      //LOGIC TO ADD TO DB : TO DO
-      const res = await fetch('http://localhost:3000/api/expenses', {
+      const res = await fetch('/api/expenses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -87,7 +82,7 @@ export default function Home() {
 
   const deleteExpense = async (id) => {
     //LOGIC TO DELETE FROM DB : TO DO
-    const res = await fetch(`http://localhost:3000/api/expenses?id=${id}`, {
+    const res = await fetch(`/api/expenses?id=${id}`, {
       method: 'DELETE'
     });
     if(res.ok){
@@ -105,7 +100,7 @@ export default function Home() {
       option.textContent = cat;
       categorySelect.appendChild(option);
     });
-    await fetch('http://localhost:3000/api/expenses?type=monthByCategory', {
+    await fetch('/api/expenses?type=monthByCategory', {
       method: 'GET'
     })
       .then(response => response.json())
@@ -113,7 +108,7 @@ export default function Home() {
       .catch(error => console.error('Error fetching category-wise month expense:', error));
     
       // last 10 expenses
-      await fetch('http://localhost:3000/api/expenses?type=last10', {
+      await fetch('/api/expenses?type=last10', {
       method: 'GET'
     })
       .then(response => response.json())
@@ -121,7 +116,7 @@ export default function Home() {
       .catch(error => console.error('Error fetching last 10 expenses:', error));
 
     //fetch todays total expense
-    await fetch('http://localhost:3000/api/expenses?type=todayTotal', {
+    await fetch('/api/expenses?type=todayTotal', {
       method: 'GET'
     })
       .then(response => response.json())
@@ -129,7 +124,7 @@ export default function Home() {
       .catch(error => console.error('Error fetching today total expense:', error));
 
     //fetch month total expense
-    await fetch('http://localhost:3000/api/expenses?type=monthTotal', {
+    await fetch('/api/expenses?type=monthTotal', {
       method: 'GET'
     })
       .then(response => response.json())
