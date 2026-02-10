@@ -25,14 +25,7 @@ export default function Home() {
   const expenseCategory = [
     "Food", "Transport", "Rent", "Entertainment", "Other"
   ];
-  const [expenses, setExpenses] = useState([
-    { id: 1, date: '2024-01-15', description: 'Lunch at cafe', category: 'Food', amount: 450 },
-    { id: 2, date: '2024-01-14', description: 'Taxi to office', category: 'Transport', amount: 200 },
-    { id: 3, date: '2024-01-13', description: 'Monthly rent', category: 'Rent', amount: 15000 },
-    { id: 4, date: '2024-01-12', description: 'Movie tickets', category: 'Entertainment', amount: 600 },
-    { id: 5, date: '2024-01-11', description: 'Grocery shopping', category: 'Other', amount: 2500 },
-    { id: 6, date: '2024-01-10', description: 'Takeout', category: 'Food', amount: 1200 }
-  ]);
+  const [expenses, setExpenses] = useState([]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
