@@ -19,7 +19,7 @@ export default function Home() {
     setAddVisible(!isAddVisible);
   }
   const expenseCategory = [
-    "Food", "Transport", "Rent", "Entertainment", "Other"
+    "Food", "Groceries", "Transport", "Rent", "Entertainment", "Other"
   ];
   const [expenses, setExpenses] = useState([]);
 
@@ -151,6 +151,7 @@ export default function Home() {
           Object.keys(categoryWiseMonthExpense).map((cat) => (
             <div key={cat} className={styles.wrapper}>
               <div className={styles.monthlyinsightcard} style={{color: cat==="Food"?"rgb(107, 255, 102)"
+                    :cat==="Groceries"?"rgb(209, 188, 255)"
                     :cat==="Transport"?"rgb(255, 255, 102)"
                     :cat==="Rent"?"rgb(255, 102, 102)"
                     :cat==="Entertainment"?"rgb(102, 255, 255)"
@@ -206,6 +207,7 @@ export default function Home() {
               <div className={styles.wrapperspacebtw}>
                 <p className={styles.expdetailscategory}
                    style={{backgroundColor: expense.category==="Food"?"rgb(107, 255, 102)"
+                    :expense.category==="Groceries"?"rgb(209, 188, 255)"
                     :expense.category==="Transport"?"rgb(255, 255, 102)"
                     :expense.category==="Rent"?"rgb(255, 102, 102)"
                     :expense.category==="Entertainment"?"rgb(102, 255, 255)"
